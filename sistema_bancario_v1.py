@@ -1,4 +1,4 @@
-
+# menu básico do sistema
 menu = """
  ------ bem vindo ao seu banco -----
 
@@ -9,53 +9,75 @@ menu = """
     [3] Extrato
     [0] Sair
 """
-saques_realizados = 0
-saldo = 1000
-valor_saque = 0
+# configurações do sistema
 LIMITE_OPERACAO = 500
 LIMITE_SAQUE = 3
 extrato_minicial= f"Histórico de movimentações:\n"
-extrato = ""
+
+# dicionário com valores especificos da conta
+
+conta ={
+     'saldo' : 1000,
+     'extrato' : "",
+     'saques_realizados' : 0
+}
+
+#funções da aplicação
+
+def depositar(conta):
+    valor_depositado = float(input('qual o valor a ser depositado?: '))
+    if valor_depositado > 0:
+        conta['saldo'] += valor_depositado
+        conta['extrato'] += f'depósito de R$ {valor_depositado:.2f}\n'
+        print('valor depósitado com sucesso')
+    else:
+        print('Valor inválido para depósito, tente novamente.')
+    return conta
+
+
+def sacar(LIMITE_SAQUE, LIMITE_OPERACAO, conta):
+    if conta['saques_realizados'] >= LIMITE_SAQUE:
+           print('limite de operações diarias atingidos, tente novamente amanhã')
+    else:
+        valor_saque = float(input('digite o valor a ser sacado: '))
+        if valor_saque <= 0:
+            print('valor invalido para saque')
+        elif valor_saque > LIMITE_OPERACAO:
+                print('o valor solicitado supera o limite de saque da conta, tente novamente')
+        elif valor_saque >  conta['saldo']:
+                print("saldo insuficiente, tente novamente")
+        else:
+                conta['saldo'] -= valor_saque
+                conta['saques_realizados'] += 1
+                conta['extrato'] += f"saque de R$ {valor_saque:.2f}\n"
+                print('saque realidado com sucesso')
+    return conta
+
+
+def mostar_extrato(extrato_minicial, conta):
+    print('\n' , extrato_minicial)
+    if not conta['extrato']:
+        print(f"Nenhuma operação realizada nesta data")
+    else:
+        print(conta['extrato'])
+    print(f'saldo dispónivel: R$ {conta['saldo']:.2f}')
+    print("-" * 30) 
+
+# programa principal
 
 while True:
     
     opcao = input(menu)
     
     if opcao == "1":
-        deposito= float(input("qual o valor a ser depositado?: "))
-        if deposito <= 0:
-            print('valor inválido para deposito, tente novamente')
-        else:
-            saldo = saldo + deposito
-            extrato += f"depósito de R$ {deposito:.2f}\n"
-            print("valor depositado com sucesso!")               
-        
+        conta = depositar(conta)
 
     elif opcao == "2":
-
-        if saques_realizados >= LIMITE_SAQUE:
-           print('limite de operações diarias atingidos, tente novamente amanhã')
-        else:
-            valor_saque = float(input('digite o valor a ser sacado: '))
-            if valor_saque <= 0:
-                print('valor invalido para saque')
-            elif valor_saque > LIMITE_OPERACAO:
-                print('o valor solicitado supera o limite de saque da conta, tente novamente')
-            elif valor_saque >  saldo:
-                print("saldo insuficiente, tente novamente")
-            else:
-                saldo = saldo - valor_saque
-                saques_realizados = saques_realizados + 1
-                extrato += f"saque de R$ {valor_saque:.2f}\n"
-                print('saque realidado com sucesso')
+        conta = sacar(LIMITE_SAQUE, LIMITE_OPERACAO, conta)
         
     elif opcao == '3':
-
-        if extrato == "":
-            print( extrato_minicial , f"Nenhuma operação realizada nesta data, saldo disponivel R$ {saldo:.2f}")
-        else:
-            print( extrato_minicial , extrato , f"saldo disponivel R$ {saldo:.2f}")
-
+         mostar_extrato(extrato_minicial, conta)
+         
     elif opcao == '0':
         
         print('obrigado por utilizar nossos serviços, volte sempre')
